@@ -5,6 +5,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.MenuItem;
@@ -55,9 +59,11 @@ public class WaterUsageQueryActivity extends Activity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Get Water Usage");
+        toolbar.setTitleTextColor(Color.WHITE);
 
         setActionBar(toolbar);
         getActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         selectFromDateButton = (Button) findViewById(R.id.fromDateTimeButton);
         selectToDateButton = (Button) findViewById(R.id.toDateTimeButton);
