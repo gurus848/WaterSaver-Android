@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">WaterSaver</string>
+    <string name="title_activity_water_usage_query">WaterUsageQueryActivity</string>
+</resources>
