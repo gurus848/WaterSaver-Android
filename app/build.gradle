@@ -21,13 +21,15 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+    compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.0.2'
     compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.0.2'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.darwinsys:hirondelle-date4j:1.5.1'
+    compile 'com.android.support:design:24.2.1'
+    testCompile 'junit:junit:4.12'
 }

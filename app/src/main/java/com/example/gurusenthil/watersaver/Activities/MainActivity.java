@@ -1,16 +1,20 @@
-package com.example.gurusenthil.watersaver;
+package com.example.gurusenthil.watersaver.Activities;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.gurusenthil.watersaver.R;
+import com.example.gurusenthil.watersaver.ServerStuff.ServerRequests;
+import com.example.gurusenthil.watersaver.Managers.WaterDataManager;
+import com.example.gurusenthil.watersaver.DataModels.WaterRecordDataModel;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -40,6 +44,7 @@ public class MainActivity extends Activity {
     private Handler mHandler;
     private Context context;
     private Button querySpecificWaterUsageButton;
+    private Button waterUsageGraphsButton;
 
 
 
@@ -60,6 +65,14 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 Intent queryWaterUsageActivity = new Intent(context, WaterUsageQueryActivity.class);
                 startActivity(queryWaterUsageActivity);
+            }
+        });
+        waterUsageGraphsButton = (Button)findViewById(R.id.waterUsageGraphsButton);
+        waterUsageGraphsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent waterUsageGraphs = new Intent(context, WaterUsageGraphActivity.class);
+                startActivity(waterUsageGraphs);
             }
         });
 
@@ -97,7 +110,7 @@ public class MainActivity extends Activity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d("MQTT Client", "Message Arrived topic: " + topic + " Message: " + message.toString());
+                //Log.d("MQTT Client", "Message Arrived topic: " + topic + " Message: " + message.toString());
                 if (topic.equals(waterUsageTopic)) {
                     String waterUsageString = message.toString();
                     float waterUsage = Float.parseFloat(waterUsageString);
@@ -179,27 +192,29 @@ public class MainActivity extends Activity {
 
             try {
                 DateTime now = DateTime.now(TimeZone.getDefault());
-                long toTime = now.getMilliseconds(TimeZone.getDefault())/1000;
+                final long toTime = now.getMilliseconds(TimeZone.getDefault())/1000;
 
                 DateTime startOfDay = now.getStartOfDay();
-                long fromTime = startOfDay.getMilliseconds(TimeZone.getDefault())/1000;
+                final long fromTime = startOfDay.getMilliseconds(TimeZone.getDefault())/1000;
 
                 Log.d("testing", "fromTimeCalculated: "+fromTime+" toTimeCalculated: "+toTime);
 
                 WaterDataManager waterDataManager = new WaterDataManager();
                 waterDataManager.getWaterRecordsForTimePeriod(context, fromTime, toTime, new ServerRequests.WaterDataRequests.WaterDataRequestListener() {
                     @Override
-                    public void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels) {
+                    public void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels, Integer index) {
                         double totalWaterUsageToday = 0;
                         for (WaterRecordDataModel waterRecordDataModel: waterRecordDataModels){
-                            totalWaterUsageToday += waterRecordDataModel.getTotalWaterUsage();
+
+                            totalWaterUsageToday += waterRecordDataModel.getTotalWaterUsageOverRequiredTimePeriod();
+
                         }
 
                         NumberFormat formatter = new DecimalFormat("#0.0");
                         todayTotalWaterUsageView.setText(formatter.format(totalWaterUsageToday));
 
                     }
-                });
+                }, null);
             }finally {
                 mHandler.postDelayed(updateWaterUsageToday, oneMinuteInMillis);
             }

@@ -1,16 +1,14 @@
-package com.example.gurusenthil.watersaver;
+package com.example.gurusenthil.watersaver.Activities;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +17,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.Toolbar;
+
+import com.example.gurusenthil.watersaver.R;
+import com.example.gurusenthil.watersaver.ServerStuff.ServerRequests;
+import com.example.gurusenthil.watersaver.Managers.WaterDataManager;
+import com.example.gurusenthil.watersaver.DataModels.WaterRecordDataModel;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -150,17 +153,18 @@ public class WaterUsageQueryActivity extends Activity {
             WaterDataManager waterDataManager = new WaterDataManager();
             waterDataManager.getWaterRecordsForTimePeriod(context, fromTime, toTime, new ServerRequests.WaterDataRequests.WaterDataRequestListener() {
                 @Override
-                public void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels) {
+                public void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels, Integer index) {
                     double totalWaterUsage = 0;
                     for (WaterRecordDataModel waterRecordDataModel: waterRecordDataModels){
-                        totalWaterUsage += waterRecordDataModel.getTotalWaterUsage();
+                        totalWaterUsage += waterRecordDataModel.getTotalWaterUsageOverRequiredTimePeriod();
+                        Log.d("water_calculated", ""+waterRecordDataModel.getTotalWaterUsageOverRequiredTimePeriod());
                     }
 
                     NumberFormat formatter = new DecimalFormat("#0.0");
                     unitLabel.setVisibility(View.VISIBLE);
                     waterUsedView.setText(formatter.format(totalWaterUsage));
                 }
-            });
+            }, null);
         }else {
             Toast.makeText(context, "Set the dates and times for querying.", Toast.LENGTH_SHORT).show();
         }

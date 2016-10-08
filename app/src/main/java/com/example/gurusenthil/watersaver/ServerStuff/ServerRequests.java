@@ -1,4 +1,4 @@
-package com.example.gurusenthil.watersaver;
+package com.example.gurusenthil.watersaver.ServerStuff;
 
 import android.content.Context;
 import android.util.Log;
@@ -8,6 +8,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
+import com.example.gurusenthil.watersaver.Other.Constants;
+import com.example.gurusenthil.watersaver.DataModels.WaterRecordDataModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,16 +39,16 @@ public class ServerRequests {
 
     public static class WaterDataRequests {
 
-        interface WaterDataRequestListener {
-            void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels);
+        public interface WaterDataRequestListener {
+            void dataReceived(ArrayList<WaterRecordDataModel> waterRecordDataModels, Integer index);
         }
 
-        public static void requestWaterRecordsForTimePeriod(Context context, long startTimeEpoch, long endTimeEpoch, final WaterDataRequestListener waterDataRequestListener){
-            String URL = Constants.baseURL + Constants.waterRecordRequestURL + Constants.parameterFlag + Constants.fromTimeParameter + Constants.parameterEqualToSign + startTimeEpoch + Constants.parameterSeperatorSymbol + Constants.toTimeParameter + Constants.parameterEqualToSign + endTimeEpoch;
+        public static void requestWaterRecordsForTimePeriod(Context context, final long requiredStartTimeEpoch, final long requiredEndTimeEpoch, final WaterDataRequestListener waterDataRequestListener, final Integer index){
+            String URL = Constants.baseURL + Constants.waterRecordRequestURL + Constants.parameterFlag + Constants.fromTimeParameter + Constants.parameterEqualToSign + requiredStartTimeEpoch + Constants.parameterSeperatorSymbol + Constants.toTimeParameter + Constants.parameterEqualToSign + requiredEndTimeEpoch;
             Log.d("URL test", URL);
             Map<String,String> map = new HashMap<>();
-            map.put(Constants.fromTimeParameter, Long.toString(startTimeEpoch));
-            map.put(Constants.toTimeParameter, Long.toString(endTimeEpoch));
+            map.put(Constants.fromTimeParameter, Long.toString(requiredStartTimeEpoch));
+            map.put(Constants.toTimeParameter, Long.toString(requiredEndTimeEpoch));
 
             JSONArrayRequest request = new JSONArrayRequest(context, Request.Method.GET, URL, map, new Response.Listener<JSONArray>() {
                 @Override
@@ -63,14 +65,14 @@ public class ServerRequests {
                             long startTimeEpoch = daton.getLong(WaterRecordDataModel.startTimeEpochKey);
                             long stopTimeEpoch = daton.getLong(WaterRecordDataModel.stopTimeEpochKey);
                             float averageFlowRate = (float) daton.getDouble(WaterRecordDataModel.averageFlowRateKey);
-                            WaterRecordDataModel waterRecordDataModel = new WaterRecordDataModel(id, startTimeEpoch, stopTimeEpoch, averageFlowRate);
+                            WaterRecordDataModel waterRecordDataModel = new WaterRecordDataModel(id, startTimeEpoch, stopTimeEpoch, averageFlowRate, requiredStartTimeEpoch, requiredEndTimeEpoch);
                             waterRecordDataModels.add(waterRecordDataModel);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
-                    waterDataRequestListener.dataReceived(waterRecordDataModels);
+                    waterDataRequestListener.dataReceived(waterRecordDataModels, index);
                 }
             }, new Response.ErrorListener() {
                 @Override

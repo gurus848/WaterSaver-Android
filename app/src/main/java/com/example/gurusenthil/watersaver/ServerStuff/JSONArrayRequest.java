@@ -1,4 +1,4 @@
-package com.example.gurusenthil.watersaver;
+package com.example.gurusenthil.watersaver.ServerStuff;
 
 /**
  * Created by GuruSenthil on 10/6/16.
